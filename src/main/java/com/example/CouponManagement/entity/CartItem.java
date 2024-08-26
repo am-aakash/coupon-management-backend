@@ -1,6 +1,12 @@
 package com.example.CouponManagement.entity;
+
+import com.fasterxml.jackson.annotation.JsonProperty;
+
 public class CartItem {
+	
+	@JsonProperty("product_id")
     private Long productId;
+	
     private int quantity;
     private double price;
     private double totalDiscount;

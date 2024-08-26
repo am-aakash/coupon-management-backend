@@ -1,9 +1,10 @@
 package com.example.CouponManagement.entity;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class Cart {
-    private List<CartItem> items;
+    private List<CartItem> items = new ArrayList<>();
     private double totalPrice;
     private double totalDiscount;
     private double finalPrice;

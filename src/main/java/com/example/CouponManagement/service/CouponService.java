@@ -83,16 +83,15 @@ public class CouponService {
         switch (type) {
             case "cart-wise":
                 double threshold = (Integer) details.get("threshold");
-                double cartTotal = (cartItems==null || cartItems.isEmpty())? 0.0 :  cart.getItems().stream().mapToDouble(item -> item.getQuantity() * item.getPrice()).sum();
+                double cartTotal = cartItems.stream().mapToDouble(item -> item.getQuantity() * item.getPrice()).sum();
                 return cartTotal > threshold;
 
             case "product-wise":
                 Long productId = ((Number) details.get("product_id")).longValue();
-                return (cartItems==null || cartItems.isEmpty())? false :  cart.getItems().stream().anyMatch(item -> item.getProductId().equals(productId));
+                return cartItems.stream().anyMatch(item -> item.getProductId().equals(productId));
 
             case "bxgy":
                 List<Map<String, Object>> buyProducts = (List<Map<String, Object>>) details.get("buy_products");
-                List<Map<String, Object>> getProducts = (List<Map<String, Object>>) details.get("get_products");
                 int repetitionLimit = (int) details.get("repetition_limit");
 
                 int applicableRepetitions = calculateBxGyRepetitions(cart, buyProducts);
@@ -131,7 +130,7 @@ public class CouponService {
 
         switch (type) {
             case "cart-wise":
-                double discountPercentage = (double) details.get("discount");
+                double discountPercentage = ((Integer) details.get("discount")).doubleValue();
                 List<CartItem> cartItems = cart.getItems();
                 double cartTotal = (cartItems==null || cartItems.isEmpty())? 0.0 : cartItems.stream().mapToDouble(item -> item.getQuantity() * item.getPrice()).sum();
                 double discountAmount = (cartTotal * discountPercentage) / 100;
@@ -143,7 +142,7 @@ public class CouponService {
 
             case "product-wise":
                 Long productId = ((Number) details.get("product_id")).longValue();
-                double productDiscount = (double) details.get("discount");
+                double productDiscount = ((Integer) details.get("discount")).doubleValue();
 
                 cart.getItems().forEach(item -> {
                     if (item.getProductId().equals(productId)) {

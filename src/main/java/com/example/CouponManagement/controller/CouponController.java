@@ -49,12 +49,20 @@ public class CouponController {
     }
 
     @PostMapping("applicable-coupons")
-    public List<Coupon> getApplicableCoupons(@RequestBody Cart cart) {
+    public List<Coupon> getApplicableCoupons(@RequestBody Map<String, Cart> requestBody) {
+        Cart cart = requestBody.get("cart");
+        if (cart == null || cart.getItems() == null) {
+            throw new IllegalArgumentException("Cart cannot be null or empty.");
+        }
         return couponService.getApplicableCoupons(cart);
     }
 
     @PostMapping("apply-coupon/{id}")
-    public Cart applyCoupon(@PathVariable Long id, @RequestBody Cart cart) {
+    public Cart applyCoupon(@PathVariable Long id, @RequestBody Map<String, Cart> requestBody) {
+        Cart cart = requestBody.get("cart");
+        if (cart == null || cart.getItems() == null) {
+            throw new IllegalArgumentException("Cart cannot be null or empty.");
+        }
         return couponService.applyCoupon(id, cart);
     }
 }
