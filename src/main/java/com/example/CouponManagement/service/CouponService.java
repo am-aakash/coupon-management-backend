@@ -40,14 +40,14 @@ public class CouponService {
 
     public Coupon updateCoupon(Long id, Coupon updatedCoupon) {
         if (!couponRepository.getCouponById(id).isPresent()) {
-            throw new CouponNotFoundException("Coupon with ID " + id + " not found.");
+            throw new CouponNotFoundException(id);
         }
         return couponRepository.updateCoupon(id, updatedCoupon);
     }
 
     public void deleteCoupon(Long id) {
         if (!couponRepository.getCouponById(id).isPresent()) {
-            throw new CouponNotFoundException("Coupon with ID " + id + " not found.");
+            throw new CouponNotFoundException(id);
         }
         couponRepository.deleteCoupon(id);
     }
@@ -67,7 +67,7 @@ public class CouponService {
 
     public Cart applyCoupon(Long couponId, Cart cart) {
         Coupon coupon = getCouponById(couponId).orElseThrow(() ->
-                new CouponNotFoundException("Coupon with ID " + couponId + " not found."));
+                new CouponNotFoundException(couponId));
         if (!isCouponApplicable(coupon, cart)) {
             throw new IllegalArgumentException("Coupon with ID " + couponId + " is not applicable.");
         }
