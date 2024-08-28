@@ -58,4 +58,55 @@ class CouponManagementApplicationTests {
         assertEquals("cart-wise", createdCoupon.getType());
     }
 
+    @Test
+    public void testApplyCoupon() {
+        Coupon coupon = new Coupon();
+        coupon.setId(1L);
+        coupon.setType("cart-wise");
+        coupon.setDetails(Map.of("threshold", 100, "discount", 10));
+        coupon.setExpirationDate(LocalDate.now().plusDays(1));
+
+        Cart cart = new Cart();
+        List<CartItem> items = new ArrayList<>();
+        items.add(new CartItem(1L, 6, 50));
+        items.add(new CartItem(2L, 3, 30));
+        items.add(new CartItem(3L, 2, 25));
+        cart.setItems(items);
+
+        when(couponRepository.getCouponById(anyLong())).thenReturn(Optional.of(coupon));
+
+        Cart updatedCart = couponService.applyCoupon(1L, cart);
+        assertNotNull(updatedCart);
+        assertEquals(440.0, updatedCart.getTotalPrice());
+        assertEquals(44.0, updatedCart.getTotalDiscount());
+        assertEquals(396.0, updatedCart.getFinalPrice());
+    }
+
+    @Test
+    public void testApplyCoupon_CouponNotFound() {
+        when(couponRepository.getCouponById(anyLong())).thenReturn(Optional.empty());
+
+        Exception exception = assertThrows(CouponNotFoundException.class, () -> {
+            couponService.applyCoupon(1L, new Cart());
+        });
+
+        assertEquals("Coupon not found with ID: Coupon with ID 1 not found.", exception.getMessage());
+    }
+
+    @Test
+    public void testApplyCoupon_CouponExpired() {
+        Coupon coupon = new Coupon();
+        coupon.setId(1L);
+        coupon.setType("cart-wise");
+        coupon.setDetails(Map.of("threshold", 100, "discount", 10));
+        coupon.setExpirationDate(LocalDate.now().minusDays(1));
+
+        when(couponRepository.getCouponById(anyLong())).thenReturn(Optional.of(coupon));
+
+        Exception exception = assertThrows(CouponExpiredException.class, () -> {
+            couponService.applyCoupon(1L, new Cart());
+        });
+
+        assertEquals("Coupon with ID 1 is expired.", exception.getMessage());
+    }
 }
